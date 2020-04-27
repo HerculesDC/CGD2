@@ -81,6 +81,14 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                     ""expectedControlType"": ""Dpad"",
                     ""processors"": """",
                     ""interactions"": """"
+                },
+                {
+                    ""name"": ""ResetCamera"",
+                    ""type"": ""Button"",
+                    ""id"": ""1b78d7d2-6bdd-4f56-a299-42ef7191a8c0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
                 }
             ],
             ""bindings"": [
@@ -347,6 +355,28 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                     ""action"": ""Pickup"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""71c34158-3b82-42ad-bf76-9e3fee17d703"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ResetCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7e3e1c61-0363-4fa6-982a-e3cb47f72f5a"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyboardAndMouse"",
+                    ""action"": ""ResetCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -391,6 +421,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         m_PlayerInputMap_Jump = m_PlayerInputMap.FindAction("Jump", throwIfNotFound: true);
         m_PlayerInputMap_Pickup = m_PlayerInputMap.FindAction("Pickup", throwIfNotFound: true);
         m_PlayerInputMap_ScrollWeapon = m_PlayerInputMap.FindAction("ScrollWeapon", throwIfNotFound: true);
+        m_PlayerInputMap_ResetCamera = m_PlayerInputMap.FindAction("ResetCamera", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -448,6 +479,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
     private readonly InputAction m_PlayerInputMap_Jump;
     private readonly InputAction m_PlayerInputMap_Pickup;
     private readonly InputAction m_PlayerInputMap_ScrollWeapon;
+    private readonly InputAction m_PlayerInputMap_ResetCamera;
     public struct PlayerInputMapActions
     {
         private @PlayerInput m_Wrapper;
@@ -460,6 +492,7 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         public InputAction @Jump => m_Wrapper.m_PlayerInputMap_Jump;
         public InputAction @Pickup => m_Wrapper.m_PlayerInputMap_Pickup;
         public InputAction @ScrollWeapon => m_Wrapper.m_PlayerInputMap_ScrollWeapon;
+        public InputAction @ResetCamera => m_Wrapper.m_PlayerInputMap_ResetCamera;
         public InputActionMap Get() { return m_Wrapper.m_PlayerInputMap; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -493,6 +526,9 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                 @ScrollWeapon.started -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnScrollWeapon;
                 @ScrollWeapon.performed -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnScrollWeapon;
                 @ScrollWeapon.canceled -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnScrollWeapon;
+                @ResetCamera.started -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnResetCamera;
+                @ResetCamera.performed -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnResetCamera;
+                @ResetCamera.canceled -= m_Wrapper.m_PlayerInputMapActionsCallbackInterface.OnResetCamera;
             }
             m_Wrapper.m_PlayerInputMapActionsCallbackInterface = instance;
             if (instance != null)
@@ -521,6 +557,9 @@ public class @PlayerInput : IInputActionCollection, IDisposable
                 @ScrollWeapon.started += instance.OnScrollWeapon;
                 @ScrollWeapon.performed += instance.OnScrollWeapon;
                 @ScrollWeapon.canceled += instance.OnScrollWeapon;
+                @ResetCamera.started += instance.OnResetCamera;
+                @ResetCamera.performed += instance.OnResetCamera;
+                @ResetCamera.canceled += instance.OnResetCamera;
             }
         }
     }
@@ -553,5 +592,6 @@ public class @PlayerInput : IInputActionCollection, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnPickup(InputAction.CallbackContext context);
         void OnScrollWeapon(InputAction.CallbackContext context);
+        void OnResetCamera(InputAction.CallbackContext context);
     }
 }
