@@ -28,6 +28,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private GroundFinder m_RightFooting;
     #endregion
 
+    #region Animator Controls
+    private Animator m_anim;
+    #endregion
+
+    //this will probably go later
     [SerializeField] private Transform m_Arm;
 
     private Rigidbody m_rb;
