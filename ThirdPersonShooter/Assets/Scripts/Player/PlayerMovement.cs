@@ -13,20 +13,26 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float m_StrafeSpeed;
     [SerializeField] private float m_AirborneFactor;
     [SerializeField] private float m_JumpForce;
-    [SerializeField] private float m_GroundDist;
     #endregion
 
     #region Camera Points
     [SerializeField] private Transform m_PivotPoint;
+    [SerializeField] private Vector3 m_NormalPivotPoint;
+    [SerializeField] private Vector3 m_CrouchPivotPoint;
     [SerializeField, Tooltip("X for horizontal speed, Y for vertical speed")] 
     private Vector2 m_PivotSpeed;
+    #endregion
+
+    #region Model Properties
+    [SerializeField] private GroundFinder m_LeftFooting;
+    [SerializeField] private GroundFinder m_RightFooting;
     #endregion
 
     [SerializeField] private Transform m_Arm;
 
     private Rigidbody m_rb;
 
-    public bool IsGrounded => CheckGround();
+    public bool IsGrounded => m_LeftFooting.Grounded || m_RightFooting.Grounded;
 
     #region Player Input
     private PlayerInput m_PlayerInput;
@@ -95,31 +101,32 @@ public class PlayerMovement : MonoBehaviour
             m_rb.position += this.gameObject.transform.right * MovementInput.x * m_StrafeSpeed * Time.deltaTime;
 
             if (JumpInput) {
-                this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.cyan;
                 Jump();
             }
-            else if (IsFiring) this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.red;
-            else if (IsCrouching) this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.green;
-            else if (IsAiming) this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.yellow;
-            else if (Picking) this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.gray;
-            else this.gameObject.GetComponentInChildren<MeshRenderer>().material.color = Color.white;
+            else if (IsFiring) { }
+            else if (IsCrouching) {
+                Crouch();
+            }
+            else if (IsAiming) { }
+            else if (Picking) { }
+            else {
+                UnCrouch();
+            }
         }
         else {
             m_rb.position += this.gameObject.transform.forward * MovementInput.y * m_RunSpeed * m_AirborneFactor * Time.deltaTime;
             m_rb.position += this.gameObject.transform.right * MovementInput.x * m_StrafeSpeed * m_AirborneFactor * Time.deltaTime;
         }
     }
+    void Crouch() {
+        m_PivotPoint.localPosition = m_CrouchPivotPoint;
+    }
+    void UnCrouch() {
+        m_PivotPoint.localPosition = m_NormalPivotPoint;
+    }
     void FixedUpdate() {
         UpdateCameraPoints();
         m_Arm.up = m_PivotPoint.forward;
-    }
-
-    bool CheckGround() {
-        Ray ray = new Ray();
-        ray.origin = m_rb.position;
-        ray.direction = Vector3.down;
-        Physics.Raycast(ray, out RaycastHit info, m_GroundDist);
-        return info.collider != null;
     }
     void Jump() {
         m_rb.AddForce(Vector3.up * m_JumpForce);
