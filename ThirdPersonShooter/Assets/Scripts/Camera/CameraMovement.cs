@@ -58,5 +58,4 @@ public class CameraMovement : MonoBehaviour
     void OnCollisionExit(Collision collision) {
         if (collision.gameObject.tag == "Player") { m_isCollidingWithPlayer = false; }
     }
-
 }

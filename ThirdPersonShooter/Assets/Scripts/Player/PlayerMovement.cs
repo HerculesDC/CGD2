@@ -13,13 +13,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float m_StrafeSpeed;
     [SerializeField] private float m_AirborneFactor;
     [SerializeField] private float m_JumpForce;
+    [SerializeField] private Gamepad m_pad;
     #endregion
 
     #region Camera Points
     [SerializeField] private Transform m_PivotPoint;
     [SerializeField] private Vector3 m_NormalPivotPoint;
     [SerializeField] private Vector3 m_CrouchPivotPoint;
-    [SerializeField, Tooltip("X for horizontal speed, Y for vertical speed")] 
+    [SerializeField] private float m_PivotStep;
+    [SerializeField, Tooltip("X for horizontal speed, Y for vertical speed")]
+    private Vector2 m_NormalPivotSpeed;
+    [SerializeField, Tooltip("X for horizontal speed, Y for vertical speed")]
+    private Vector2 m_ZoomingPivotSpeed;
     private Vector2 m_PivotSpeed;
     #endregion
 
@@ -27,6 +32,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private GroundFinder m_LeftFooting;
     [SerializeField] private GroundFinder m_RightFooting;
     #endregion
+
+    #region Weapons
+    [SerializeField] private GameObject m_Weapon;
+    #endregion
+
 
     #region Animator Controls
     private Animator m_anim;
@@ -87,6 +97,9 @@ public class PlayerMovement : MonoBehaviour
 
         //Rigidbody
         m_rb = GetComponent<Rigidbody>();
+
+        //Animation
+        m_anim = GetComponentInChildren<Animator>();
     }
     // Start is called before the first frame update
     void Start()
@@ -97,7 +110,14 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateSpeeds();
         Move();
+    }
+    void UpdateSpeeds() { // designed for pivot point and player, only player implemented as of now
+        #region Pivot Point speed
+        m_PivotSpeed = IsAiming ? m_ZoomingPivotSpeed : m_NormalPivotSpeed;
+        #endregion
+
     }
     void Move() {
 
@@ -124,14 +144,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
     void Crouch() {
-        m_PivotPoint.localPosition = m_CrouchPivotPoint;
+        m_anim.SetBool("Crouching", true);
+        m_PivotPoint.localPosition = Vector3.MoveTowards(m_PivotPoint.localPosition, m_CrouchPivotPoint, m_PivotStep);
     }
     void UnCrouch() {
-        m_PivotPoint.localPosition = m_NormalPivotPoint;
+        m_anim.SetBool("Crouching", false);
+        m_PivotPoint.localPosition = m_PivotPoint.localPosition = Vector3.MoveTowards(m_PivotPoint.localPosition, m_NormalPivotPoint, m_PivotStep);
     }
     void FixedUpdate() {
         UpdateCameraPoints();
-        m_Arm.up = m_PivotPoint.forward;
+        //m_Arm.up = m_PivotPoint.forward;
     }
     void Jump() {
         m_rb.AddForce(Vector3.up * m_JumpForce);
@@ -139,6 +161,8 @@ public class PlayerMovement : MonoBehaviour
 
     void UpdateCameraPoints() {
         //Requires refinement
+        float pitch = LookInput.y * m_PivotSpeed.x * Time.deltaTime;
+        float yaw = LookInput.x * m_PivotSpeed.y * Time.deltaTime;
         m_PivotPoint.Rotate(new Vector3(LookInput.y*m_PivotSpeed.x, LookInput.x * m_PivotSpeed.y, 0)*Time.fixedDeltaTime);
         
         if (CameraReset) {

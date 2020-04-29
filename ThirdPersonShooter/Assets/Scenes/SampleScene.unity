@@ -939,6 +939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Player: {fileID: 978127300}
   m_Crosshairs: {fileID: 1477592116}
+  m_Pickup: {fileID: 0}
 --- !u!1001 &4345531879371108937
 PrefabInstance:
   m_ObjectHideFlags: 0
